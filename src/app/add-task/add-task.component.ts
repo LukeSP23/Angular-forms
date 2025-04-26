@@ -1,11 +1,15 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { TasksServiceService } from '../tasks-service.service';
+import { Task } from '../task';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-task',
   standalone: false,
   templateUrl: './add-task.component.html',
-  styleUrl: './add-task.component.css'
+  styleUrl: './add-task.component.css',
 })
 export class AddTaskComponent {
   form: FormGroup = new FormGroup({
@@ -17,6 +21,11 @@ export class AddTaskComponent {
     category: new FormControl('', [Validators.required]),
     progress_level: new FormControl('', [Validators.required]),
   });
+
+  constructor(
+    private service: TasksServiceService,
+    private router: Router
+  ) {}
 
   get title() {
     return this.form.get('title');
@@ -45,13 +54,19 @@ export class AddTaskComponent {
     return this.form.get('progress_level');
   }
 
-
   addTask() {
-    if (this.form.valid) {
-      console.log(this.form.value);
-      this.form.reset();
-    } else {
-      console.log('Form is invalid');
+    let x = <Task>this.form.value;
+    (x.time = x.date + ' '), this.time!.value;
+    this.service.addTask(x).subscribe(
+      (result: any) => {
+        console.log(result.task.title + ' has been added sucessfully');
+      },
+      (err: HttpErrorResponse) => {
+        console.log(err);
+      }
+    );
+    this.form.reset();
+    this.router.navigate(['home']);
   }
-}
+
 }
